@@ -754,16 +754,18 @@ namespace Plugin {
             }
             virtual void StateChange(PluginHost::IShell* service)
             {
+		cout<<"START: StateChange Monitor.h\n";
                 _adminLock.Lock();
 
                 std::map<string, MonitorObject>::iterator index(_monitor.find(service->Callsign()));
 
                 if (index != _monitor.end()) {
-
+		    cout<<"StateChange index != _monitor.end() Monitor.h\n";
                     // Only act on Activated or Deactivated...
                     PluginHost::IShell::state currentState(service->State());
 
                     if (currentState == PluginHost::IShell::ACTIVATED) {
+			cout<<"StateChange currentState == PluginHost::IShell::ACTIVATED Monitor.h\n";
                         bool is_active = index->second.IsActive();
                         index->second.Active(true);
                         if (is_active == false && std::count_if(_monitor.begin(), _monitor.end(), [](const std::pair<string, MonitorObject>& v) {
@@ -783,15 +785,19 @@ namespace Plugin {
                         Exchange::IMemory* memory = service->QueryInterface<Exchange::IMemory>();
 
                         if (memory != nullptr) {
+			    cout<<"StateChange memory != nullptr Monitor.h\n";
                             index->second.Set(memory);
                             memory->Release();
                         }
                     } else if (currentState == PluginHost::IShell::DEACTIVATION) {
+			cout<<"StateChange currentState == PluginHost::IShell::DEACTIVATION Monitor.h\n";
                         index->second.Set(nullptr);
                     } else if ((currentState == PluginHost::IShell::DEACTIVATED)) {
+			cout<<"StateChange currentState == PluginHost::IShell::DEACTIVATED Monitor.h\n";
                         index->second.Active(false);
                         if ((index->second.HasRestartAllowed() == true) && ((service->Reason() == PluginHost::IShell::MEMORY_EXCEEDED) || (service->Reason() == PluginHost::IShell::FAILURE))) {
                             if (index->second.RegisterRestart(service->Reason()) == false) {
+				cout<<"StateChange index->second.RegisterRestart(service->Reason()) == false Monitor.h\n";
                                 TRACE(Trace::Fatal, (_T("Giving up restarting of %s: Failed more than %d times within %d seconds."), service->Callsign().c_str(), index->second.RestartLimit(), index->second.RestartWindow()));
                                 const string message("{\"callsign\": \"" + service->Callsign() + "\", \"action\": \"Restart\", \"reason\":\"" + (std::to_string(index->second.RestartLimit())).c_str() + " Attempts Failed within the restart window\"}");
                                 _service->Notify(message);

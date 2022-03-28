@@ -30,7 +30,7 @@ namespace Plugin {
 
     /* virtual */ const string Monitor::Initialize(PluginHost::IShell* service)
     {
-
+	cout<<"START: Monitor::Initialize Monitor.cpp\n";
         _config.FromString(service->ConfigLine());
 
         _skipURL = static_cast<uint8_t>(service->WebPrefix().length());
@@ -44,15 +44,17 @@ namespace Plugin {
         service->Register(_monitor);
 
         // On succes return a name as a Callsign to be used in the URL, after the "service"prefix
+	cout<<"END: Monitor::Initialize Monitor.cpp\n";
         return (_T(""));
     }
 
     /* virtual */ void Monitor::Deinitialize(PluginHost::IShell* service)
     {
-
+	cout<<"START: Monitor::Deinitialize Monitor.cpp\n"
         _monitor->Close();
 
         service->Unregister(_monitor);
+	cout<<"END: Monitor::Deinitialize Monitor.cpp\n";
     }
 
     /* virtual */ string Monitor::Information() const
@@ -72,6 +74,7 @@ namespace Plugin {
     // <PUT> ../<Callsign>		Reset the Memory measurements for Callsign
     /* virtual */ Core::ProxyType<Web::Response> Monitor::Process(const Web::Request& request)
     {
+	cout<<"START: Monitor::Process Monitor.cpp\n";
         ASSERT(_skipURL <= request.Path.length());
 
         Core::ProxyType<Web::Response> result(PluginHost::IFactories::Instance().Response());
@@ -85,9 +88,12 @@ namespace Plugin {
         result->Message = "OK";
 
         if (request.Verb == Web::Request::HTTP_GET) {
+	    cout<<"Monitor::Process request.Verb == Web::Request::HTTP_GET Monitor.cpp\n";
             // Let's list them all....
             if (index.Next() == false) {
+		cout<<"Monitor::Process index.Next() == false Monitor.cpp\n";
                 if (_monitor->Length() > 0) {
+		    cout<<"Monitor::Process _monitor->Length() > 0 Monitor.cpp\n";
                     Core::ProxyType<Web::JSONBodyType<Core::JSON::ArrayType<Monitor::Data>>> response(jsonBodyDataFactory.Element());
 
                     _monitor->Snapshot(*response);
@@ -99,6 +105,7 @@ namespace Plugin {
 
                 // Seems we only want 1 name
                 if (_monitor->Snapshot(index.Current().Text(), memoryInfo) == true) {
+		    cout<<"Monitor::Process _monitor->Snapshot(index.Current().Text(), memoryInfo) == true Monitor.cpp\n";
                     Core::ProxyType<Web::JSONBodyType<Monitor::Data::MetaData>> response(jsonMemoryBodyDataFactory.Element());
 
                     *response = memoryInfo;
@@ -109,10 +116,12 @@ namespace Plugin {
 
             result->ContentType = Web::MIME_JSON;
         } else if ((request.Verb == Web::Request::HTTP_PUT) && (index.Next() == true)) {
+	    cout<<"Monitor::Process request.Verb == Web::Request::HTTP_PUT) && (index.Next() == true Monitor.cpp\n";
             MetaData memoryInfo;
 
             // Seems we only want 1 name
             if (_monitor->Reset(index.Current().Text(), memoryInfo) == true) {
+		cout<<"Monitor::Process _monitor->Reset(index.Current().Text(), memoryInfo) == true Monitor.cpp\n";
                 Core::ProxyType<Web::JSONBodyType<Monitor::Data::MetaData>> response(jsonMemoryBodyDataFactory.Element());
 
                 *response = memoryInfo;
@@ -122,6 +131,7 @@ namespace Plugin {
 
             result->ContentType = Web::MIME_JSON;
         } else if ((request.Verb == Web::Request::HTTP_POST) && (request.HasBody())) {
+	    cout<<"Monitor::Process request.Verb == Web::Request::HTTP_POST) && (request.HasBody() Monitor.cpp\n";
             Core::ProxyType<const Monitor::Data> body(request.Body<const Monitor::Data>());
             string observable = body->Observable.Value();
 
@@ -129,6 +139,7 @@ namespace Plugin {
             uint8_t restartLimit = 0;
 
             if (body->Restart.IsSet()) {
+		cout<<"Monitor::Process body->Restart.IsSet() Monitor.cpp\n";
                 restartWindow = body->Restart.Window;
                 restartLimit = body->Restart.Limit;
             }
@@ -138,7 +149,7 @@ namespace Plugin {
             result->ErrorCode = Web::STATUS_BAD_REQUEST;
             result->Message = _T(" could not handle your request.");
         }
-
+	cout<<"END: Monitor::Process Monitor.cpp\n";
         return (result);
     }
 }

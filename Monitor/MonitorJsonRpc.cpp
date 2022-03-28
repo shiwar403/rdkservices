@@ -32,16 +32,20 @@ namespace Plugin {
 
     void Monitor::RegisterAll()
     {
+	cout<<"START: Monitor::RegisterAll MonitorJsonRpc.cpp\n";
         Register<RestartlimitsParamsData,void>(_T("restartlimits"), &Monitor::endpoint_restartlimits, this);
         Register<ResetstatsParamsData,InfoInfo>(_T("resetstats"), &Monitor::endpoint_resetstats, this);
         Property<Core::JSON::ArrayType<InfoInfo>>(_T("status"), &Monitor::get_status, nullptr, this);
+	cout<<"END: Monitor::RegisterAll MonitorJsonRpc.cpp\n";
     }
 
     void Monitor::UnregisterAll()
     {
+	cout<<"START: Monitor::UnregisterAll MonitorJsonRpc.cpp\n";
         Unregister(_T("resetstats"));
         Unregister(_T("restartlimits"));
         Unregister(_T("status"));
+	cout<<"END: Monitor::UnregisterAll MonitorJsonRpc.cpp\n";
     }
 
     // API implementation
@@ -52,10 +56,12 @@ namespace Plugin {
     //  - ERROR_NONE: Success
     uint32_t Monitor::endpoint_restartlimits(const RestartlimitsParamsData& params)
     {
+	cout<<"START: Monitor::endpoint_restartlimits MonitorJsonRpc.cpp\n";
         const string& callsign = params.Callsign.Value();
         _monitor->Update(
             callsign,
             params.Restart.Window.Value(), params.Restart.Limit.Value());
+	cout<<"END: Monitor::endpoint_restartlimits MonitorJsonRpc.cpp\n";
         return Core::ERROR_NONE;
     }
 
@@ -64,14 +70,17 @@ namespace Plugin {
     //  - ERROR_NONE: Success
     uint32_t Monitor::endpoint_resetstats(const ResetstatsParamsData& params, InfoInfo& response)
     {
+	cout<<"START: Monitor::endpoint_resetstats MonitorJsonRpc.cpp\n"; 
         const string& callsign = params.Callsign.Value();
 
         Core::JSON::ArrayType<InfoInfo> info;
         _monitor->Snapshot(callsign, &info);
         if (info.Length() == 1) {
+            cout<<"START: info.Length() == 1 MonitorJsonRpc.cpp\n";
             _monitor->Reset(callsign);
             response = info[0];
         }
+	cout<<"END: Monitor::endpoint_resetstats MonitorJsonRpc.cpp\n";
         return Core::ERROR_NONE;
     }
 
@@ -80,19 +89,22 @@ namespace Plugin {
     //  - ERROR_NONE: Success
     uint32_t Monitor::get_status(const string& index, Core::JSON::ArrayType<InfoInfo>& response) const
     {
+	cout<<"START: Monitor::get_status MonitorJsonRpc.cpp\n";
         const string& callsign = index;
         _monitor->Snapshot(callsign, &response);
+	cout<<"END: Monitor::get_status MonitorJsonRpc.cpp\n";
         return Core::ERROR_NONE;
     }
 
     // Event: action - Signals action taken by the monitor
     void Monitor::event_action(const string& callsign, const string& action, const string& reason)
     {
+	cout<<<"START: Monitor::event_action MonitorJsonRpc.cpp\n";
         ActionParamsData params;
         params.Callsign = callsign;
         params.Action = action;
         params.Reason = reason;
-
+	cout<<<"END: Monitor::event_action MonitorJsonRpc.cpp\n";
         Notify(_T("action"), params);
     }
 } // namespace Plugin
