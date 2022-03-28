@@ -101,12 +101,12 @@ namespace Plugin {
     // Event: action - Signals action taken by the monitor
     void Monitor::event_action(const string& callsign, const string& action, const string& reason)
     {
-	cout<<<"START: Monitor::event_action MonitorJsonRpc.cpp\n";
+	cout<<"START: Monitor::event_action MonitorJsonRpc.cpp\n";
         ActionParamsData params;
         params.Callsign = callsign;
         params.Action = action;
         params.Reason = reason;
-	cout<<<"END: Monitor::event_action MonitorJsonRpc.cpp\n";
+	cout<<"END: Monitor::event_action MonitorJsonRpc.cpp\n";
         Notify(_T("action"), params);
     }
 } // namespace Plugin
