@@ -26,6 +26,9 @@
 #include <limits>
 #include <string>
 
+#include <iostream>
+using namespace std;
+
 static uint32_t gcd(uint32_t a, uint32_t b)
 {
     return b == 0 ? a : gcd(b, a % b);

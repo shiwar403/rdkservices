@@ -20,7 +20,9 @@
 #include "Module.h"
 #include "Monitor.h"
 #include <interfaces/json/JsonData_Monitor.h>
+#include <iostream>
 
+using namespace std;
 namespace WPEFramework {
 
 namespace Plugin {

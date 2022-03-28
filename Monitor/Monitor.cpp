@@ -18,6 +18,9 @@
  */
  
 #include "Monitor.h"
+#include <iostream>
+
+using namespace std;
 
 namespace WPEFramework {
 namespace Plugin {
