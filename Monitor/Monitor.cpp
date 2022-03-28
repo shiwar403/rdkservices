@@ -53,7 +53,7 @@ namespace Plugin {
 
     /* virtual */ void Monitor::Deinitialize(PluginHost::IShell* service)
     {
-	cout<<"START: Monitor::Deinitialize Monitor.cpp\n"
+	cout<<"START: Monitor::Deinitialize Monitor.cpp\n";
         _monitor->Close();
 
         service->Unregister(_monitor);
